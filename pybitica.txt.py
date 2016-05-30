@@ -46,7 +46,7 @@ class Todo:
         if "habitica_id" in self.addons:
             d['id'] = self.addons['habitica_id']
 
-        d['text'] = self.text
+        d['text'] = str(self)
 
         return d
 
@@ -90,7 +90,8 @@ class HabiticaTodo(Todo):
         self.done = init_dict['completed']
         self.created = None
         self.completed = None
-        self.text = init_dict['text']
+        # Any priorities need to be removed from the title
+        self.text = re.sub("^(\([A-Z]\) )", "", init_dict['text'])
         self.priority = None
 
         if "id" in init_dict:
@@ -144,7 +145,7 @@ def create_habitica_task(headers, task):
         print('Created task "' + task.text + '" on Habitica')
 
     else:
-        print("Warning: Task creation failed with message: " + j.text)
+        print("Warning: Task creation failed with message: " + r.text)
 
 def complete_habitica_task(headers, task):
     r = requests.post("https://habitica.com/api/v3/tasks/" + task.id + "/score/up", headers = headers)
@@ -154,7 +155,19 @@ def complete_habitica_task(headers, task):
         print('Completed task "' + task.text + ' on Habitica')
 
     else:
-        print("Warning: Task creation failed with message: " + j.text)
+        print("Warning: Task completion failed with message: " + r.text)
+
+def update_habitica_name(headers, task):
+    payload = {"text": str(task)}
+    r = requests.put("https://habitica.com/api/v3/task/" + task.id, headers = headers, json=payload)
+    print(r.url)
+    j = r.json()
+
+    if j['success'] == True:
+        print('Updated name of "' + task.text + ' on Habitica')
+
+    else:
+        print("Warning: Task update failed with message: " + r.text)
 
 # Load options
 if os.path.isfile(data_file):
@@ -237,13 +250,19 @@ while actions != 0:
             print('"' + habitica_todo.text + '" created locally')
             actions += 1
 
-    # Look for (uncompleted) tasks on Habitica that don't exist on Habitica
+    if actions > 0:
+        continue
+
+    # Look for (uncompleted) tasks locally that don't exist on Habitica
     for local_todo in local_todos:
         if not local_todo.done and not "habitica_id" in local_todo.addons:
             new_todo = HabiticaTodo(local_todo.get_dict())
             create_habitica_task(headers, new_todo)
             habitica_todos.append(new_todo)
             actions += 1
+
+    if actions > 0:
+        continue
 
 
     # Check for information discrepancies between habitica and local
@@ -258,11 +277,23 @@ while actions != 0:
 
                 # Check if task is done locally but not on habitica
                 if local_todo.done and not habitica_todo.done:
+                    print('"' + local_todo.text + '" is completed locally but not on Habitica')
                     habitica_todo.done = True
                     complete_habitica_task(headers, habitica_todo)
                     actions += 1
 
-    print("Did " + str(actions) + " actions")
+                # Check for projects that exist only locally
+                for p_l in local_todo.projects:
+                    found = False
+                    for p_h in habitica_todo.projects:
+                        if p_l == p_h:
+                            found = True
+                            break
+
+                    if not found:
+                        habitica_todo.projects.append(p_l)
+                        update_habitica_name(headers, habitica_todo)
+
 
 # Save local todos
 with open(options["todo.txt-location"], "w") as local_todos_file:
