@@ -238,7 +238,8 @@ if not "api-key" in options:
 
 if not "todo.txt-location" in options:
     options["todo.txt-location"] = input("todo.txt location: ")
-    open(options["todo.txt-location"], "w").close()
+    # Make sure the file can be written to
+    open(options["todo.txt-location"], "a").close()
     save_options(data_file, options)
 
 
