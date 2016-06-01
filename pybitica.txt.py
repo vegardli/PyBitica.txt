@@ -1,8 +1,15 @@
 #!/usr/bin/python
 
-import pickle,os,requests,re,datetime
+import pickle,os,requests,re,datetime,argparse
+
+parser = argparse.ArgumentParser(description="Sync todo lists between todo.txt and Habitica")
+parser.add_argument("--options_file", help="File to read and write options")
+options = parser.parse_args()
 
 data_file = "data"
+
+if options.options_file:
+    data_file = options.options_file
 
 class Todo:
     def __str__(self):
@@ -90,7 +97,6 @@ class HabiticaTodo(Todo):
         self.done = init_dict['completed']
         self.created = None
         self.completed = None
-        # Any priorities need to be removed from the title
         self.text = re.sub("^(\([A-Z]\) )", "", init_dict['text'])
         self.priority = None
 
@@ -292,7 +298,7 @@ while actions != 0:
 
                     if not found:
                         habitica_todo.projects.append(p_l)
-                        update_habitica_name(headers, habitica_todo)
+                        #update_habitica_name(headers, habitica_todo)
 
 
 # Save local todos
