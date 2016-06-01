@@ -30,12 +30,12 @@ import pickle,os,requests,re,datetime,argparse
 # Parse command-line options
 parser = argparse.ArgumentParser(description="Sync todo lists between todo.txt and Habitica")
 parser.add_argument("--options_file", help="File to read and write options")
-options = parser.parse_args()
+args = parser.parse_args()
 
 # Default data file location
 data_file = os.path.join(os.path.expanduser("~"), ".pybitica.txt")
-if options.options_file:
-    data_file = options.options_file
+if args.options_file:
+    data_file = args.options_file
 
 # Todo superclass, for both local and Habitica todos
 class Todo:
