@@ -33,7 +33,7 @@ parser.add_argument("--options_file", help="File to read and write options")
 options = parser.parse_args()
 
 # Default data file location
-data_file = "~/.pybitica.txt"
+data_file = os.path.join(os.path.expanduser("~"), ".pybitica.txt")
 if options.options_file:
     data_file = options.options_file
 
