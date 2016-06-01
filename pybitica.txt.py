@@ -2,15 +2,17 @@
 
 import pickle,os,requests,re,datetime,argparse
 
+# Parse command-line options
 parser = argparse.ArgumentParser(description="Sync todo lists between todo.txt and Habitica")
 parser.add_argument("--options_file", help="File to read and write options")
 options = parser.parse_args()
 
-data_file = "data"
-
+# Default data file location
+data_file = "~/.pybitica.txt"
 if options.options_file:
     data_file = options.options_file
 
+# Todo superclass, for both local and Habitica todos
 class Todo:
     def __str__(self):
         outstr = ""
@@ -227,7 +229,9 @@ with open(options["todo.txt-location"], "r") as local_todos_file:
 # Load todos from habitica
 habitica_todos = []
 
+# Headers that will be used for all requests
 headers = {"Content-Type": "application/json", "x-api-user": options["api-user"], "x-api-key": options["api-key"]}
+# We need to retrieve both completed and uncompleted todos
 params = ({"type": "todos"}, {"type": "completedTodos"})
 
 for p in params:
@@ -238,7 +242,8 @@ for p in params:
     for d in j["data"]:
         habitica_todos.append(HabiticaTodo(d))
 
-# Do sync
+
+# Start synchronization loop
 actions = 1
 while actions != 0:
     actions = 0
@@ -319,10 +324,11 @@ while actions != 0:
                         #update_habitica_name(headers, habitica_todo)
 
 
+# Sort tasks locally and on Habitica
 local_todos.sort(key = lambda x: str(x))
 sort_habitica_tasks(headers, local_todos)
 
-# Save local todos
+# Save changes
 with open(options["todo.txt-location"], "w") as local_todos_file:
     for todo in local_todos:
         local_todos_file.write(str(todo))
