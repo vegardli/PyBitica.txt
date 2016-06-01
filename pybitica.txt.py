@@ -146,7 +146,7 @@ def create_habitica_task(headers, task):
     r = requests.post("https://habitica.com/api/v3/tasks/user", headers=headers, json=task.get_dict())
     j = r.json()
 
-    if j['success'] == True:
+    if j['success']:
         task.id = j['data']['_id']
         print('Created task "' + task.text + '" on Habitica')
 
@@ -157,7 +157,7 @@ def complete_habitica_task(headers, task):
     r = requests.post("https://habitica.com/api/v3/tasks/" + task.id + "/score/up", headers = headers)
     j = r.json()
 
-    if j['success'] == True:
+    if j['success']:
         print('Completed task "' + task.text + ' on Habitica')
 
     else:
@@ -166,10 +166,9 @@ def complete_habitica_task(headers, task):
 def update_habitica_name(headers, task):
     payload = {"text": str(task)}
     r = requests.put("https://habitica.com/api/v3/task/" + task.id, headers = headers, json=payload)
-    print(r.url)
     j = r.json()
 
-    if j['success'] == True:
+    if j['success']:
         print('Updated name of "' + task.text + ' on Habitica')
 
     else:
