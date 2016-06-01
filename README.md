@@ -1,6 +1,6 @@
 # PyBitica.txt
 
-Script/daemon for syncronizing todo.txt with the Habitica to-do list.
+Script/daemon for syncronizing todo.txt (http://todotxt.com/) with the Habitica (https://habitica.com/) to-do list.
 
 Very much a work in progress, may contain bugs that will wreck your todo.txt and Habitica todo list. Use with caution,
 and please report any bugs!
