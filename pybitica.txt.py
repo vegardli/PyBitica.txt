@@ -175,6 +175,25 @@ def update_habitica_name(headers, task):
     else:
         print("Warning: Task update failed with message: " + r.text)
 
+# Make sure the tasks on Habitica are sorted by the order given in local_tasklist
+def sort_habitica_tasks(headers, local_tasklist):
+    for i in range(len(local_tasklist)):
+        task = local_tasklist[i]
+        if task.done:
+            continue
+
+        if not "habitica_id" in task.addons:
+            print("Warning: couldn't find habitica_id for \"" + task + "\" when sorting.")
+            continue
+
+        r = requests.post("https://habitica.com/api/v3/tasks/" + task.addons["habitica_id"] + "/move/to/" + str(i), 
+                headers=headers)
+        j = r.json()
+
+        if not j['success']:
+            print("Warning: sorting failed for \"" + str(task) + "\"")
+            print(r.text)
+
 # Load options
 if os.path.isfile(data_file):
     options = load_options(data_file)
@@ -300,6 +319,9 @@ while actions != 0:
                         habitica_todo.projects.append(p_l)
                         #update_habitica_name(headers, habitica_todo)
 
+
+local_todos.sort(key = lambda x: str(x))
+sort_habitica_tasks(headers, local_todos)
 
 # Save local todos
 with open(options["todo.txt-location"], "w") as local_todos_file:
