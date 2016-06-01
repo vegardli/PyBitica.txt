@@ -3,7 +3,7 @@
 Script/daemon for syncronizing todo.txt with the habitica to-do list.
 
 Very much a work in progress, may contain bugs that will wreck your todo.txt and Habitica todo list. Use with caution,
-and please report any bugs you find!
+and please report any bugs!
 
 ## Feature map:
 (A) Implement syncing of changes to todo (currently any changes after creation are ignored)
