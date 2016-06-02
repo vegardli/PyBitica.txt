@@ -47,13 +47,13 @@ class Todo:
             if self.completed:
                 outstr += self.completed + " "
             if self.created:
-                outstr += self.created + " "
+                outstr += self.created.isoformat() + " "
 
         else:
             if self.priority:
                 outstr += self.priority
             if self.created:
-                outstr += self.created
+                outstr += self.created.isoformat() + " "
 
         outstr += self.text
 
@@ -73,9 +73,9 @@ class Todo:
         d['completed'] = self.done
 
         if self.created:
-            d['createdAt'] = self.created
+            d['createdAt'] = self.created.isoformat()
         if self.completed:
-            d['dateCompleted'] = self.completed
+            d['dateCompleted'] = self.completed.isoformat()
         
         if "habitica_id" in self.addons:
             d['id'] = self.addons['habitica_id']
@@ -94,22 +94,31 @@ class LocalTodo(Todo):
         self.text = ""
 
         # Search for priority, date and text (incomplete tasks)
-        incomplete_result = re.match("(\([A-Z]\) )?([0-9]{4}-[0-9]{2}-[0-9]{2} )?(.+)", init_str)
+        incomplete_result = re.match("(\([A-Z]\) )?\s*([0-9]{4}-[0-9]{2}-[0-9]{2} )?(.+)", init_str)
 
         # Search for completeness, completion date, creation date and text (complete tasks)
-        complete_result = re.match("x ([0-9]{4}-[0-9]{2}-[0-9]{2} )?([0-9]{4}-[0-9]{2}-[0-9]{2} )?(.+)", init_str)
+        complete_result = re.match("x \s*([0-9]{4}-[0-9]{2}-[0-9]{2} )?\s*([0-9]{4}-[0-9]{2}-[0-9]{2} )?(.+)", 
+                init_str)
 
         if complete_result:
             # Task is complete
             self.done = True
-            # TODO: Completed and created dates
+            
+            if complete_result.group(1):
+                self.completed = datetime.datetime.strptime(complete_result.group(1), "%Y-%m-%d").date()
+
+            if complete_result.group(2):
+                self.created = datetime.datetime.strptime(complete_result.group(2), "%Y-%m-%d").date()
+
             self.text = complete_result.group(3)
 
         elif incomplete_result:
             # Task is incomplete
             self.priority = incomplete_result.group(1)
 
-            # TODO: Set date
+            if incomplete_result.group(2):
+                self.created = datetime.datetime.strptime(incomplete_result.group(2).strip(), "%Y-%m-%d").date()
+
             self.text = incomplete_result.group(3)
 
         else:
