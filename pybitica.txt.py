@@ -45,7 +45,7 @@ class Todo:
         if self.done:
             outstr += "x "
             if self.completed:
-                outstr += self.completed + " "
+                outstr += self.completed.isoformat() + " "
             if self.created:
                 outstr += self.created.isoformat() + " "
 
