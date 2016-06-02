@@ -80,7 +80,7 @@ class Todo:
         if "habitica_id" in self.addons:
             d['id'] = self.addons['habitica_id']
 
-        d['text'] = str(self)
+        d['text'] = self.text
 
         return d
 
