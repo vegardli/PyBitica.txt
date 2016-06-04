@@ -62,7 +62,11 @@ class Todo:
         for c in self.contexts:
             outstr += " " + c
         for k, v in self.addons.items():
-            outstr += " " + k + ":" + v
+            if type(v) == type(datetime.date.today()):
+                outstr += " " + k + ":" + v.isoformat()
+
+            else:
+                outstr += " " + k + ":" + v
 
         return outstr + "\n"
 
