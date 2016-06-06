@@ -363,12 +363,13 @@ while actions != 0:
                         #update_habitica_name(headers, habitica_todo)
 
 
-# Sort tasks locally and on Habitica
+# Sort tasks locally
 local_todos.sort(key = lambda x: str(x))
-sort_habitica_tasks(headers, local_todos)
 
 # Save changes
 with open(options["todo.txt-location"], "w") as local_todos_file:
     for todo in local_todos:
         local_todos_file.write(str(todo))
 
+# Sort tasks in Habitica
+sort_habitica_tasks(headers, local_todos)
