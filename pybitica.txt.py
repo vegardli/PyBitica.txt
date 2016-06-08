@@ -30,6 +30,7 @@ import pickle,os,requests,re,datetime,argparse
 # Parse command-line options
 parser = argparse.ArgumentParser(description="Sync todo lists between todo.txt and Habitica")
 parser.add_argument("--options_file", help="File to read and write options")
+parser.add_argument("--fast", help="Skip Habitica sorting", action="store_true")
 args = parser.parse_args()
 
 # Default data file location
@@ -371,5 +372,6 @@ with open(options["todo.txt-location"], "w") as local_todos_file:
     for todo in local_todos:
         local_todos_file.write(str(todo))
 
-# Sort tasks in Habitica
-sort_habitica_tasks(headers, local_todos)
+if not args.fast:
+    # Sort tasks in Habitica
+    sort_habitica_tasks(headers, local_todos)
