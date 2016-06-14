@@ -33,6 +33,9 @@ parser.add_argument("--options_file", help="File to read and write options")
 parser.add_argument("--fast", help="Skip Habitica sorting", action="store_true")
 args = parser.parse_args()
 
+# Flag to keep track of whether or not the local todos have been changed and need to be rewritten to file
+local_dirty = False
+
 # Default data file location
 data_file = os.path.join(os.path.expanduser("~"), ".pybitica.txt")
 if args.options_file:
@@ -309,6 +312,7 @@ while actions != 0:
                     local_todo.addons["habitica_id"] = habitica_todo.id
                     print('"' + local_todo.text + '" sync established')
                     actions += 1
+                    local_dirty = True
                     break
 
             if found:
@@ -318,6 +322,7 @@ while actions != 0:
             local_todos.append(LocalTodo(str(habitica_todo)))
             print('"' + habitica_todo.text + '" created locally')
             actions += 1
+            local_dirty = True
 
     if actions > 0:
         continue
@@ -343,6 +348,7 @@ while actions != 0:
                     print('"' + local_todo.text + '" is completed on Habitica but not locally')
                     local_todo.done = True
                     actions += 1
+                    local_dirty = True
 
                 # Check if task is done locally but not on habitica
                 if local_todo.done and not habitica_todo.done:
@@ -368,9 +374,13 @@ while actions != 0:
 local_todos.sort(key = lambda x: str(x))
 
 # Save changes
-with open(options["todo.txt-location"], "w") as local_todos_file:
-    for todo in local_todos:
-        local_todos_file.write(str(todo))
+if local_dirty:
+    with open(options["todo.txt-location"], "w") as local_todos_file:
+        for todo in local_todos:
+            local_todos_file.write(str(todo))
+
+else:
+    print("No local changes.")
 
 if not args.fast:
     # Sort tasks in Habitica
