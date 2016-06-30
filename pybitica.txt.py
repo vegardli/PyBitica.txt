@@ -202,7 +202,7 @@ def complete_habitica_task(headers, task):
     j = r.json()
 
     if j['success']:
-        print('Completed task "' + task.text + ' on Habitica')
+        print('Completed task "' + task.text + '" on Habitica')
 
     else:
         print("Warning: Task completion failed with message: " + r.text)
